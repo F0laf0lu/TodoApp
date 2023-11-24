@@ -25,7 +25,7 @@ def list_tasks(date):
         task['mark_btn'].destroy()
     index.clear()
 
-    cursor.execute("SELECT date, task, status FROM employees WHERE date = ?", (date,))
+    cursor.execute("SELECT id, date, task, status FROM employees WHERE date = ?", (date,))
     rows = cursor.fetchall()
     print("Found tasks:", rows)
     print(len(rows))
