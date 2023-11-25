@@ -24,37 +24,39 @@ def list_tasks(date):
         task['task_lbl'].destroy()
         task['mark_btn'].destroy()
     index.clear()
-
+    
     cursor.execute("SELECT id, date, task, status FROM employees WHERE date = ?", (date,))
     rows = cursor.fetchall()
-    print("Found tasks:", rows)
-    print(len(rows))
-    i = 0
-
+    k = 0
     for row in rows:
-        print(date, row[1])
         task_id = row[0]
         task_frm = tk.Frame(master=frame, width=375, height=40, background="#444444")
-        task_frm.grid(row=i, column=0, pady=(10, 0))
+        task_frm.grid(row=k, column=0, pady=(10, 0))
 
-        task_lbl = ttk.Label(task_frm, text=row[1], font=("Helvetica", 15), background="#444444", foreground="white")
-        task_lbl.place(x=15, y=10)
+        if row[3] == 0:
+            task_lbl = ttk.Label(task_frm, text=row[2], font=("Helvetica", 15), background="#444444", foreground="white")
+            task_lbl.place(x=15, y=10)
+        else:
+            task_lbl = ttk.Label(task_frm, text=row[2], font=("Helvetica", 15, "overstrike"), background="#444444", foreground="white")
+            task_lbl.place(x=15, y=10)
 
-        delete_btn = tk.Button(task_frm, image=delete_icon, border=0, cursor="hand2", background="#444444", command=lambda: delete_task(delete_btn, task_id))
+        delete_btn = tk.Button(task_frm, image=delete_icon, border=0, cursor="hand2", background="#444444", command=lambda id=task_id: delete_task(id))
         delete_btn.place(x=280, y=10)
 
-        mark_btn = tk.Button(task_frm, image=mark_icon, borderwidth=0, cursor="hand2", background="#444444", border=0, command=lambda: mark_task(mark_btn))
+        mark_btn = tk.Button(task_frm, image=mark_icon, borderwidth=0, cursor="hand2", background="#444444", border=0, command=lambda id=task_id: mark_task(id))
         mark_btn.place(x=220, y=10)
 
-        task = {'frm': task_frm, 'delete_btn': delete_btn, 'task_lbl': task_lbl, 'mark_btn': mark_btn}
-        index.append(task)
-        i += 1
+        # The tasks listed from the database are kept of tracked in the task dictionary whoch are then appended to the index list (similar to the add task function, where we are keeping track of tasks created), which is used to delete or mark task
 
+        task = {'frm': task_frm, 'delete_btn': delete_btn, 'task_lbl': task_lbl, 'mark_btn': mark_btn, 'id':task_id}
+        index.append(task)
+        k += 1
 
 # Task Functions
 # Clear Screen
 def clear_screen():
     task_ent.delete(0, tk.END)
+
 
 # Change date function
 def change_date(delta):
@@ -73,65 +75,79 @@ def next_date():
 # Add tasks
 def add_task():
     global i, task_id
+    avail_tasks=len(index)
+    print(avail_tasks)
     task_text = task_ent.get()
     if task_text == "":
         messagebox.showerror("TODOApp", "Invalid Entry")
-    else:
+    if avail_tasks > 0:
+        i = avail_tasks+1
+        print(i)
         task_frm = tk.Frame(master=frame,  width=375, height=40, background="#444444")
-        task_frm.grid(row=i, column=0,  pady=(10,0))
+        task_frm.grid(row=i, column=0, pady=(10, 0))
 
         task_lbl = ttk.Label(task_frm, text=task_text, font=("Helvetica", 15), background="#444444", foreground="white")
         task_lbl.place(x=15, y=10)
 
-        delete_btn = tk.Button(task_frm, image=delete_icon, border=0, cursor="hand2", background="#444444", command= lambda: delete_task(delete_btn, task_id))
+        delete_btn = tk.Button(task_frm, image=delete_icon, border=0, cursor="hand2", background="#444444", command= lambda: delete_task(task_id))
         delete_btn.place(x=280, y=10)
 
         mark_btn = tk.Button(task_frm, image=mark_icon, borderwidth=0, cursor="hand2", background="#444444", border=0, command= lambda: mark_task(mark_btn))
         mark_btn.place(x=220, y=10)
 
-        # Keep track of tasks created
-        task = {'frm': task_frm,'delete_btn': delete_btn, 'task_lbl': task_lbl, 'mark_btn': mark_btn}
-
-        index.append(task)
-        clear_screen()
-        i += 1
-
         cursor.execute("INSERT INTO employees (date, task, status) VALUES (?, ?, ?)", (date_lbl["text"], task_lbl['text'], 0))
         conn.commit()
         
         task_id = cursor.lastrowid
+        
+        # Keep track of tasks created
+        task = {'frm': task_frm,'delete_btn': delete_btn, 'task_lbl': task_lbl, 'mark_btn': mark_btn, 'id':task_id}
+        index.append(task)
+        # print(index)
+        i += 1
+        clear_screen()
 
 # Delete Tasks
-def delete_task(delete_btn, task_id):
+def delete_task(task_id):
     global i
     for task in index:
-        if task['delete_btn'] == delete_btn:
-            task['frm'].destroy()
-            task['delete_btn'].destroy()
-            task['task_lbl'].destroy()
-            task['mark_btn'].destroy()
+        if task['id'] == task_id:
+            # Remove the task from the index list
 
             key = index.index(task)
             del index[key]
 
+            # Hide the Tkinter widgets associated with the task
+            task['frm'].grid_forget()
+            task['delete_btn'].place_forget()
+            task['task_lbl'].place_forget()
+            task['mark_btn'].place_forget()
+
             # Update positions of the remaining tasks after the deleted one
             for j, remaining_task in enumerate(index):
-                remaining_task['frm'].grid(row=j, column=0,  pady=(20,0))
-                remaining_task['delete_btn'].place(x=280, y=15)
-                remaining_task['task_lbl'].place(x=15, y=15)
-                remaining_task['mark_btn'].place(x=220, y=15)
+                remaining_task['frm'].grid(row=j, column=0,  pady=(10,0))
+                remaining_task['delete_btn'].place(x=280, y=10)
+                remaining_task['task_lbl'].place(x=15, y=10)
+                remaining_task['mark_btn'].place(x=220, y=10)
 
             i -= 1  # Decrement i as a task is removed
+            print(i)
+
+            if i < 0:
+                i = 0
 
             cursor.execute("DELETE FROM employees WHERE id = ?", (task_id,))
             conn.commit()
 
-            break  # Break out of the loop once the task is found
+            # print(index)
+            # Re-list tasks after deleting one
+            list_tasks(date_lbl['text'])
+
 
 # Mark a task as done with strikethrough
-def mark_task(mark_btn):
+def mark_task(task_id):
     for task in index:
-        if task['mark_btn'] == mark_btn:
+        if task['id'] == task_id:
             task['task_lbl'].config(font=("Helvetica", 15, "overstrike"))
 
             text = task['task_lbl']['text']
