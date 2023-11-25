@@ -76,12 +76,13 @@ def next_date():
 def add_task():
     global i, task_id
     avail_tasks=len(index)
-    
+
+    if avail_tasks > 0:
+        i = avail_tasks+1
     task_text = task_ent.get()
     if task_text == "":
         messagebox.showerror("TODOApp", "Invalid Entry")
-    if avail_tasks > 0:
-        i = avail_tasks+1
+    else:
         task_frm = tk.Frame(master=frame,  width=375, height=40, background="#444444")
         task_frm.grid(row=i, column=0, pady=(10, 0))
 
@@ -204,19 +205,19 @@ prev_date_btn.place(x=100, y=20)
 
 # Buttons
 # Add task 
-image = Image.open("todoapp\\add.png")
+image = Image.open("todoapp\images\\add.png")
 add_image_resize = image.resize((30, 34))
 add_icon = ImageTk.PhotoImage(add_image_resize)
 add_btn = tk.Button(master=ent_frm, image=add_icon, command=add_task, borderwidth=1, cursor="hand2")
 add_btn.place(x=315, y=15)
 
 # Delete task
-delete_image = Image.open("todoapp\delete.png")
+delete_image = Image.open("todoapp\images\delete.png")
 delete_image_resize = delete_image.resize((25, 25))
 delete_icon = ImageTk.PhotoImage(delete_image_resize)
 
 # # Mark task
-mark_image = Image.open("todoapp\mark.png")
+mark_image = Image.open("todoapp\images\mark.png")
 mark_image_resize = mark_image.resize((25, 25))
 mark_icon = ImageTk.PhotoImage(mark_image_resize)
 index = []
