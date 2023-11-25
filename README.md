@@ -15,16 +15,16 @@ Include screenshots or GIFs demonstrating the main features of your ToDo app.
 
 - App Homepage
 
-    ![homepage](todoapp\images\taskapp_home.png)
+    ![homepage](images/taskapp_home.png)
 
 -   App Homepage
 
-    ![Add task](todoapp\images\add_task_home.png)
+    ![Add task](images/add_task.png)
 
 
 - Tasks from previous days marked as done
 
-    ![previous tasks](todoapp\images\prev_task.png)
+    ![previous tasks](images/prev_task.png)
 
 
 ## Prerequisites
