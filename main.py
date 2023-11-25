@@ -76,13 +76,12 @@ def next_date():
 def add_task():
     global i, task_id
     avail_tasks=len(index)
-    print(avail_tasks)
+    
     task_text = task_ent.get()
     if task_text == "":
         messagebox.showerror("TODOApp", "Invalid Entry")
     if avail_tasks > 0:
         i = avail_tasks+1
-        print(i)
         task_frm = tk.Frame(master=frame,  width=375, height=40, background="#444444")
         task_frm.grid(row=i, column=0, pady=(10, 0))
 
@@ -103,9 +102,9 @@ def add_task():
         # Keep track of tasks created
         task = {'frm': task_frm,'delete_btn': delete_btn, 'task_lbl': task_lbl, 'mark_btn': mark_btn, 'id':task_id}
         index.append(task)
-        # print(index)
         i += 1
         clear_screen()
+
 
 # Delete Tasks
 def delete_task(task_id):
@@ -131,15 +130,13 @@ def delete_task(task_id):
                 remaining_task['mark_btn'].place(x=220, y=10)
 
             i -= 1  # Decrement i as a task is removed
-            print(i)
 
             if i < 0:
                 i = 0
 
             cursor.execute("DELETE FROM employees WHERE id = ?", (task_id,))
             conn.commit()
-
-            # print(index)
+            
             # Re-list tasks after deleting one
             list_tasks(date_lbl['text'])
 
